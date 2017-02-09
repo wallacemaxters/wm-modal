@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="wm-modal.css">
+
+    <style type="text/css">
+        html,body{
+            padding: 0;
+            margin: 0;
+        }
+        /**
+        * Add custom class
+        */
+        .wm-modal > .modal-container.fullscreen {
+            width: 98%;
+        }
+    </style>
+
+    <script src="https://code.angularjs.org/1.5.8/angular.min.js"></script>
+
+    <script type="text/javascript" src="wm-modal.min.js"></script>
+
+    <script type="text/javascript">
+    angular.module('wm.modal')
+        .controller('AppController', function ($scope, $wmModal) {
+
+            $scope.open = function () {
+
+                $wmModal.open({
+                    clickout: true,
+                    controller: 'ModalController',
+                    locals: {
+                        $id: 1,
+                    },
+                    templateUrl: 'modal.html',
+                    containerClass: $scope.containerClass,
+                }).result.then(function () {
+                    console.log('ok')
+                }, function () {
+                    console.log('not ok')
+                })
+            };
+    
+        })
+
+        .controller('ModalController', function ($scope, $wmModalInstance, $wmModal, $id) {
+            $scope.modal = $wmModalInstance;
+        })
+
+    </script>
+</head>
+<body ng-app="wm.modal">
+    <div ng-controller="AppController">
+        <button ng-click="open()">Open</button>
+    </div>
+    <div>
+        <label>Select a class</label>
+        <select ng-model='containerClass'>
+            <option></option>
+            <option value="fullscreen">.fullscreen</option>
+        </select>
+    </div>
+
+    <script type="text/ng-template" id="modal.html">
+        <div class="modal-header">
+            <div style="float:right">
+                <a class="modal-close" ng-click="modal.cancel()" href>&times;</a>
+            </div>
+            <h3>My Example Modal</h3>
+        </div>
+        <div class='modal-body'>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+            tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+            quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+            consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+            cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+            proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn default" ng-click="modal.cancel()">Cancelar</button>
+            <button class='modal-btn confirm' ng-click="modal.close()">Ok</button>
+        </div>
+    </script>
+</body>
+
+
+</html>
