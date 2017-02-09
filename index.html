@@ -22,8 +22,7 @@
     <script type="text/javascript" src="wm-modal.min.js"></script>
 
     <script type="text/javascript">
-    angular.module('wm.modal')
-        .controller('AppController', function ($scope, $wmModal) {
+    angular.module('app', ['wm.modal']).controller('AppController', function ($scope, $wmModal) {
 
             $scope.open = function () {
 
@@ -50,7 +49,7 @@
 
     </script>
 </head>
-<body ng-app="wm.modal">
+<body ng-app="app">
     <div ng-controller="AppController">
         <button ng-click="open()">Open</button>
     </div>
