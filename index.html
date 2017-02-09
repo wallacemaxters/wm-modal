@@ -17,14 +17,14 @@
         }
     </style>
 
-    <script src="https://code.angularjs.org/1.5.8/angular.min.js"></script>
+    <script src="https://code.angularjs.org/1.6.1/angular.min.js"></script>
 
-    <script type="text/javascript" src="wm-modal.min.js"></script>
+    <script type="text/javascript" src="wm-modal.js"></script>
 
     <script type="text/javascript">
     angular.module('app', ['wm.modal']).controller('AppController', function ($scope, $wmModal) {
 
-            $scope.open = function () {
+            $scope.openTemplateUrl = function () {
 
                 $wmModal.open({
                     clickout: true,
@@ -35,23 +35,50 @@
                     templateUrl: 'modal.html',
                     containerClass: $scope.containerClass,
                 }).result.then(function () {
-                    console.log('ok')
+                    console.log('Yes!')
                 }, function () {
-                    console.log('not ok')
+                    console.log('NO!')
                 })
             };
+
+
+            $scope.openTemplate = function () {
+
+                $wmModal.open({
+                    clickout: true,
+                    locals: {
+                        $id: 1
+                    },
+                    controller: function ($scope, $id) {
+                        
+                       
+                    },
+                    template: '<div>A</div>',
+                })
+
+            }
     
         })
 
         .controller('ModalController', function ($scope, $wmModalInstance, $wmModal, $id) {
             $scope.modal = $wmModalInstance;
+
+            $scope.anotherModal = function () {
+                $wmModal.open({
+                    clickout: true,
+                    controller: function () {},
+                    template: '<div>Another modal</div>'
+                });
+            };
         })
 
     </script>
 </head>
 <body ng-app="app">
     <div ng-controller="AppController">
-        <button ng-click="open()">Open</button>
+        <button ng-click="openTemplateUrl()">Open Modal with TemplateUrl</button>
+
+        <button ng-click="openTemplate()">Open Modal Template</button>
     </div>
     <div>
         <label>Select a class</label>
@@ -75,6 +102,10 @@
             consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
             cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
             proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+            <p>
+                <button ng-click="anotherModal()">Another modal</button>
+            </p>
         </div>
         <div class="modal-footer">
             <button class="modal-btn default" ng-click="modal.cancel()">Cancelar</button>
