@@ -8,104 +8,151 @@ angular
         replace: true,
         template: 
             '<div class="wm-modal">' +
-                '<div class="modal-container" ng-class="containerClass" ng-style="{height: modalHeight, width: modalWidth}" ng-click="$event.stopPropagation()" ng-transclude>' +
+                '<div class="modal-container" ng-class="containerClass" ng-style="{height: modalHeight, width: modalWidth, \'z-index\' : zIndex}" ng-click="$event.stopPropagation()" ng-transclude>' +
                 '</div>' +
             '</div>',
         scope: {
             modalHeight: '@',
             modalWidth: '@',
-            containerClass: '@'
+            containerClass: '@',
+            zIndex: '@'
         }
     };
 })
 
-.service('$wmModal', ['$compile', '$document', '$rootScope', '$timeout', '$controller', '$q', function ($compile, $document, $rootScope, $timeout, $controller, $q) {
+.service('$wmModal', ['$compile', '$document', '$rootScope', '$timeout', '$controller', '$q', '$window', function ($compile, $document, $rootScope, $timeout, $controller, $q, $window) {
 
-    var el, scope, closed, close, promises, that;
+    var modals = [];
 
-    that = this;
+    var Modal = function (options) {
 
-    promises = {};
-
-    that.open = function(options) {
+        var el, that, close, scope, promises;
 
         options = angular.isObject(options) ? options : {};
 
-        closed = false;
+        that = this;
 
-        promises.result = $q.defer();
+        that.closed = false;
+
+        that.options = angular.isObject(options) ? options : {};
+
+        el = angular.element('<wm-modal></wm-modal>');        
+
+        promises = {
+            result: $q.defer()
+        };
 
         that.result = promises.result.promise;
 
-        scope = $rootScope.$new();
+        close = function() {
 
-        el = angular.element('<wm-modal></wm-modal>');
+            if (that.closed) return;
 
-        angular.extend(scope, options.scope);
+            el.addClass('closing');
 
-        $controller(
-            options.controller, 
-            angular.extend({
-                $scope: scope,
-                $wmModalInstance: that,
-            }, options.locals)
-        );
+            $timeout(function() {
+                el.remove();
+            }, 200);
 
-        el.attr({
-            'modal-height': options.height,
-            'modal-width': options.width,
-            'container-class' : options.containerClass,
-        });
+            scope.$destroy();
 
-        if (options.templateUrl) {
+            that.closed = true;
+        };
 
-            var children = angular.element('<div></div>').attr({
-                'ng-include': "'" + options.templateUrl + "'"
+        that.open = function () {
+
+            scope = angular.extend($rootScope.$new(), options.scope);
+
+            $controller(
+                options.controller, 
+                angular.extend({
+                    $scope: scope,
+                    $wmModalInstance: that,
+                }, options.locals)
+            );
+
+            el.attr({
+                'modal-height': options.height,
+                'modal-width': options.width,
+                'container-class' : options.containerClass,
+                'z-index' : that.zIndex,
             });
 
-            el.append(children);
+            if (options.templateUrl) {
 
-        } else if (options.template) {
+                var children = angular.element('<div></div>').attr({
+                    'ng-include': "'" + options.templateUrl + "'"
+                });
 
-            el.append(options.template);
+                el.append(children);
+
+            } else if (options.template) {
+
+                el.append(options.template);
+            }
+
+            el = $compile(el)(scope);
+
+            options.clickout && el.on('click', function() {
+                that.cancel();
+            });
+
+            $document.find('body').append(el);
+
+            return that;
+        };
+
+        that.close = function() {
+            close.call(that);
+            promises.result.resolve();
+            return that;
+        };
+
+        that.cancel = function() {
+            close.call(that);
+            promises.result.reject();
+            return that;
+        };
+
+    };
+
+
+    angular.element($window).bind('keyup', function (event) {
+
+        if (event.which === 27) {
+
+            var modal = modals[modals.length - 1];
+
+            modal && modal.cancel();
         }
 
-        el = $compile(el)(scope);
+    });
 
-        options.clickout && el.on('click', function() {
-            that.cancel();
-        });
 
-        $document.find('body').append(el);
+    return {
 
-        return that;
-    };
+        open: function (options) {
 
-    close = function() {
+            var that = this;
 
-        if (closed) return;
+            var modal = new Modal(options);
 
-        el.addClass('closing');
+            modal.zIndex = this.zIndex++;
 
-        $timeout(function() {
-            el.remove();
-        }, 200);
+            modal.open();
 
-        scope.$destroy();
-        closed = true;
-    };
+            modals.push(modal);
 
-    that.close = function() {
-        close.call(that);
-        promises.result.resolve();
-        return that;
+            modal.result['finally'](function () {
+                modals.pop();
+                --this.zIndex;
+            })
+
+
+            return modal;
+        },
+
+        zIndex: 1000
     }
-
-    that.cancel = function() {
-
-        close.call(that);
-        promises.result.reject();
-        return that;
-    };
 
 }]);
