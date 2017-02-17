@@ -19,9 +19,10 @@
 
     <script src="https://code.angularjs.org/1.6.1/angular.min.js"></script>
 
-    <script type="text/javascript" src="wm-modal.js"></script>
+    <script type="text/javascript" src="wm-modal.min.js"></script>
 
     <script type="text/javascript">
+
     angular.module('app', ['wm.modal']).controller('AppController', function ($scope, $wmModal) {
 
             $scope.openTemplateUrl = function () {
@@ -46,18 +47,27 @@
 
                 $wmModal.open({
                     clickout: true,
-                    locals: {
-                        $id: 1
+                    scope: {
+                        name: 'Wm Modal!'
                     },
-                    controller: function ($scope, $id) {
-                        
-                       
-                    },
-                    template: '<div>A</div>',
+                    controller: 'ModalTestController as test',
+                    template: '<div class="modal-header">\
+                                <a href ng-click="modal.close()">&times;</a>\
+                            </div>\
+                            <div class="modal-body"><input type="text" ng-model="test.name" /></div>',
                 })
 
             }
-    
+
+        })
+
+        .controller('ModalTestController', function ($scope, $wmModalInstance) {
+
+            $scope.modal = $wmModalInstance;
+
+            $scope.$watch('test.name', function () {
+                console.log(arguments)
+            })
         })
 
         .controller('ModalController', function ($scope, $wmModalInstance, $wmModal, $id) {
@@ -67,7 +77,7 @@
                 $wmModal.open({
                     clickout: true,
                     controller: function () {},
-                    template: '<div>Another modal</div>'
+                    template: '<div class="modal-body">Another modal</div>'
                 });
             };
         })

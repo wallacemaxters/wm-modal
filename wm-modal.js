@@ -26,15 +26,13 @@ angular
 
     var Modal = function (options) {
 
-        var el, that, close, scope, promises;
+        var el, that, close, scope, promises, extend;
 
         options = angular.isObject(options) ? options : {};
 
         that = this;
 
         that.closed = false;
-
-        that.options = angular.isObject(options) ? options : {};
 
         el = angular.element('<wm-modal></wm-modal>');        
 
@@ -43,6 +41,10 @@ angular
         };
 
         that.result = promises.result.promise;
+
+        extend = angular.extend;
+
+        // default actions in close event 
 
         close = function() {
 
@@ -59,23 +61,34 @@ angular
             that.closed = true;
         };
 
+
         that.open = function () {
 
-            scope = angular.extend($rootScope.$new(), options.scope);
+            // Creates a new scope
 
-            $controller(
-                options.controller, 
-                angular.extend({
-                    $scope: scope,
-                    $wmModalInstance: that,
-                }, options.locals)
-            );
+            scope = extend($rootScope.$new(), options.scope);
+
+            if (options.controller) {
+
+                var locals, controller;
+
+                // Make aditional injections for controller
+
+                locals = extend({$scope: scope, $wmModalInstance: that}, options.locals);
+
+                controller = $controller(options.controller, locals);
+
+                // import values for controller if "as" is present in controller name.
+
+                angular.isString(options.controller) && options.controller.indexOf(' as ') >= 0 && extend(controller, options.scope);
+                
+            }
 
             el.attr({
-                'modal-height': options.height,
-                'modal-width': options.width,
                 'container-class' : options.containerClass,
-                'z-index' : that.zIndex,
+                'modal-height'    : options.height,
+                'modal-width'     : options.width,
+                'z-index'         : that.zIndex,
             });
 
             if (options.templateUrl) {
@@ -116,7 +129,6 @@ angular
 
     };
 
-
     angular.element($window).bind('keyup', function (event) {
 
         if (event.which === 27) {
@@ -147,7 +159,6 @@ angular
                 modals.pop();
                 --this.zIndex;
             })
-
 
             return modal;
         },
