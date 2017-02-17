@@ -2,7 +2,6 @@
 
 The WM Modal library is a simple service to use modal in angular.
 
-
 Example:
 
 ```javascript
@@ -55,3 +54,9 @@ angular
 `modalHeight` - define a modal height
 
 `modalWidth` - define a modal width
+
+`controller` - define a controller for modal. 
+
+
+
+See an [Example](https://rawgit.com/wallacemaxters/wm-modal/master/index.html).
