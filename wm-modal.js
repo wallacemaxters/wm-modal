@@ -7,7 +7,7 @@ angular
         transclude: true,
         replace: true,
         template: 
-            '<div class="wm-modal">' +
+            '<div class="wm-modal closing">' +
                 '<div class="modal-container" ng-class="containerClass" ng-style="{height: modalHeight, width: modalWidth, \'z-index\' : zIndex}" ng-click="$event.stopPropagation()" ng-transclude>' +
                 '</div>' +
             '</div>',
@@ -111,6 +111,10 @@ angular
             });
 
             $document.find('body').append(el);
+
+            $timeout(function () {
+                el.removeClass('closing');
+            });
 
             return that;
         };
