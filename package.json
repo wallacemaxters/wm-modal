@@ -1,0 +1,23 @@
+{
+  "name": "wm-modal",
+  "version": "0.0.1",
+  "description": "Modal for AngularJS 1",
+  "main": "wm-modal.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wallacemaxters/wm-modal.git"
+  },
+  "keywords": [
+    "modal",
+    "angular"
+  ],
+  "author": "wallace maxters",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wallacemaxters/wm-modal/issues"
+  },
+  "homepage": "https://github.com/wallacemaxters/wm-modal#readme"
+}
