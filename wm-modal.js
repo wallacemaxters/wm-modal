@@ -26,7 +26,7 @@ angular
 
     var Modal = function (options) {
 
-        var el, that, close, scope, promises, extend;
+        var el, that, close, scope, deffered;
 
         options = angular.isObject(options) ? options : {};
 
@@ -36,17 +36,15 @@ angular
 
         el = angular.element('<wm-modal></wm-modal>');        
 
-        promises = {
-            result: $q.defer()
-        };
+        deffered = $q.defer();
 
-        that.result = promises.result.promise;
+        that.result = deffered.promise;
 
-        extend = angular.extend;
+        that.scope = $rootScope.$new();
 
         // default actions in close event 
 
-        close = function() {
+        that.$$close = function() {
 
             if (that.closed) return;
 
@@ -56,31 +54,31 @@ angular
                 el.remove();
             }, 200);
 
-            scope.$destroy();
 
             that.closed = true;
+
+            that.scope.$destroy();
         };
 
 
         that.open = function () {
-
-            // Creates a new scope
-
-            scope = extend($rootScope.$new(), options.scope);
+            
+            that.scope.$modal = that;
 
             if (options.controller) {
 
                 var locals, controller;
 
-                // Make aditional injections for controller
-
-                locals = extend({$scope: scope, $wmModalInstance: that}, options.locals);
+                locals = angular.extend({
+                    $scope : that.scope,
+                    $wmModalInstance : that
+                }, options.locals);
 
                 controller = $controller(options.controller, locals);
 
-                // import values for controller if "as" is present in controller name.
-
-                angular.isString(options.controller) && options.controller.indexOf(' as ') >= 0 && extend(controller, options.scope);
+                if (angular.isString(options.controller) && options.controller.indexOf(' as ') >= 0) {                    
+                    controller.$modal = that;
+                }
                 
             }
 
@@ -104,10 +102,10 @@ angular
                 el.append(options.template);
             }
 
-            el = $compile(el)(scope);
+            el = $compile(el)(that.scope);
 
-            options.clickout && el.on('click', function() {
-                that.cancel();
+            options.clickout && el.on('click', function(event) {
+                that.cancel({event: event, type: 'backdrop'});
             });
 
             $document.find('body').append(el);
@@ -119,15 +117,21 @@ angular
             return that;
         };
 
-        that.close = function() {
-            close.call(that);
-            promises.result.resolve();
+        that.close = function(value) {
+
+            that.$$close.call(that);
+
+            deffered.resolve(value);
+
             return that;
         };
 
-        that.cancel = function() {
-            close.call(that);
-            promises.result.reject();
+        that.cancel = function(value) {
+
+            that.$$close.call(that);
+
+            deffered.reject(value);
+
             return that;
         };
 
@@ -135,11 +139,11 @@ angular
 
     angular.element($window).bind('keyup', function (event) {
 
-        if (event.which === 27) {
+        if ((event.which || event.keyCode) === 27) {
 
             var modal = modals[modals.length - 1];
 
-            modal && modal.cancel();
+            modal && modal.cancel({event: event, type: 'esc'});
         }
 
     });
@@ -153,7 +157,7 @@ angular
 
             var modal = new Modal(options);
 
-            modal.zIndex = this.zIndex++;
+            modal.$$zIndex = this.$$zIndex++;
 
             modal.open();
 
@@ -161,13 +165,13 @@ angular
 
             modal.result['finally'](function () {
                 modals.pop();
-                --this.zIndex;
+                --this.$$zIndex;
             })
 
             return modal;
         },
 
-        zIndex: 1000
+        $$zIndex: 1000
     }
 
 }]);

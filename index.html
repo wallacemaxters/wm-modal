@@ -19,7 +19,7 @@
 
     <script src="https://code.angularjs.org/1.6.1/angular.min.js"></script>
 
-    <script type="text/javascript" src="wm-modal.min.js"></script>
+    <script type="text/javascript" src="wm-modal.js"></script>
 
     <script type="text/javascript">
 
@@ -27,7 +27,7 @@
 
             $scope.openTemplateUrl = function () {
 
-                $wmModal.open({
+                var modal = $wmModal.open({
                     clickout: true,
                     controller: 'ModalController',
                     locals: {
@@ -35,50 +35,62 @@
                     },
                     templateUrl: 'modal.html',
                     containerClass: $scope.containerClass,
-                }).result.then(function () {
-                    console.log('Yes!')
-                }, function () {
-                    console.log('NO!')
+                })
+
+
+
+                modal.result.then(function (arg) {
+
+                    $scope.modal1 = {state: 'ok'};
+
+                }, function (arg) {
+
+                    $scope.modal1 = {state: 'canceled'};
+                })
+
+                .catch(function () {
+                    console.log('Catched!')
                 })
             };
 
 
             $scope.openTemplate = function () {
 
+                $scope.name = 'Wallace';
+
                 $wmModal.open({
                     clickout: true,
-                    scope: {
-                        name: 'Wm Modal!'
-                    },
                     controller: 'ModalTestController as test',
                     template: '<div class="modal-header">\
-                                <a href ng-click="modal.close()" class="modal-close">&times;</a>\
+                                <a href ng-click="$modal.cancel({type: \'close\'})" class="modal-close">&times;</a>\
                             </div>\
                             <div class="modal-body"><input type="text" ng-model="test.name" /></div>',
                 })
+
+                .result.catch(function () { 
+                    console.log(arguments)
+                })
+
+                .then(undefined, () => console.log(arguments))
 
             }
 
         })
 
-        .controller('ModalTestController', function ($scope, $wmModalInstance) {
+        .controller('ModalTestController', function ($wmModalInstance) {
 
-            $scope.modal = $wmModalInstance;
-
-            $scope.$watch('test.name', function () {
-                console.log(arguments)
-            })
+            this.name = 'Wallace';
         })
 
         .controller('ModalController', function ($scope, $wmModalInstance, $wmModal, $id) {
-            $scope.modal = $wmModalInstance;
 
             $scope.anotherModal = function () {
+
                 $wmModal.open({
                     clickout: true,
                     controller: function () {},
                     template: '<div class="modal-body">Another modal</div>'
-                });
+                })
             };
         })
 
@@ -89,19 +101,25 @@
         <button ng-click="openTemplateUrl()">Open Modal with TemplateUrl</button>
 
         <button ng-click="openTemplate()">Open Modal Template</button>
+        <div>
+            <label>Select a class</label>
+            <select ng-model='containerClass'>
+                <option></option>
+                <option value="fullscreen">.fullscreen</option>
+            </select>
+        </div>
+
+        <div>
+            Modal 1 Response: {{ modal1.state }}
+        </div>
+
     </div>
-    <div>
-        <label>Select a class</label>
-        <select ng-model='containerClass'>
-            <option></option>
-            <option value="fullscreen">.fullscreen</option>
-        </select>
-    </div>
+
 
     <script type="text/ng-template" id="modal.html">
         <div class="modal-header">
             <div style="float:right">
-                <a class="modal-close" ng-click="modal.cancel()" href>&times;</a>
+                <a class="modal-close" ng-click="$modal.cancel({type: 'close_pressed'})" href>&times;</a>
             </div>
             <h3>My Example Modal</h3>
         </div>
@@ -118,8 +136,8 @@
             </p>
         </div>
         <div class="modal-footer">
-            <button class="modal-btn default" ng-click="modal.cancel()">Cancelar</button>
-            <button class='modal-btn confirm' ng-click="modal.close()">Ok</button>
+            <button class="modal-btn default" ng-click="$modal.cancel({type: 'button_pressed'})">Cancelar</button>
+            <button class='modal-btn confirm' ng-click="$modal.close()">Ok</button>
         </div>
     </script>
 </body>
