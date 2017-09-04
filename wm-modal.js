@@ -1,3 +1,5 @@
+'use strict';
+
 angular
     .module('wm.modal', [])
     .directive('wmModal',  function () {
@@ -8,7 +10,7 @@ angular
         replace: true,
         template: 
             '<div class="wm-modal closing">' +
-                '<div class="modal-container" ng-class="containerClass" ng-style="{height: modalHeight, width: modalWidth, \'z-index\' : zIndex}" ng-click="$event.stopPropagation()" ng-transclude>' +
+                '<div role="dialog" class="modal-container" ng-class="containerClass" ng-style="{height: modalHeight, width: modalWidth, \'z-index\' : zIndex}" ng-click="$event.stopPropagation()" ng-transclude>' +
                 '</div>' +
             '</div>',
         scope: {
@@ -165,7 +167,7 @@ angular
 
             modal.result['finally'](function () {
                 modals.pop();
-                --this.$$zIndex;
+                --that.$$zIndex;
             })
 
             return modal;
