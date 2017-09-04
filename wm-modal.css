@@ -1,14 +1,18 @@
 .wm-modal {
     background: rgba(0, 0, 0, 0.4);
     box-sizing: border-box;
-    height: 100%;
+    min-height: 100%;
     left: 0;
-    position: fixed;
+    position: absolute;
     top: 0;
     width: 100%;
     z-index: 100;
     opacity: 1;
     transition: all .2s linear;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: auto;
 }
 
 .wm-modal.closing{
@@ -18,15 +22,13 @@
 .wm-modal > .modal-container {
     box-sizing: border-box;
     border-radius: 5px;
-    box-shadow: rgba(0, 0, 0, 0.6) 2px 2px 10px 0px;
+    box-shadow: 0 4px 4px #666;
     position: fixed;
     width: 50%;
-    left: 50%;
-    top:  50%;
-    transform: translate(-50%, -50%);
-    z-index: 101;
     overflow: hidden;
     background-color: #fff;
+    z-index: 101;
+    position: relative;
 }
 
 .wm-modal .modal-close-btn {
@@ -39,6 +41,8 @@
 }
 
 .wm-modal > .modal-container .modal-header {
+    background-color: #fafafa;
+    border-bottom: 1px solid #cecece;
     box-sizing: border-box;
     font-family: Arial;
     font-size: 13px;
@@ -46,17 +50,25 @@
     font-style: normal;
     font-variant: normal;
     font-weight: bold;
-    height: 70px;
     line-height: normal;
     min-height: 10%;
     padding:10px;
     width: 100%;
 }
 
+.wm-modal > .modal-container .modal-header:after, .wm-modal > .modal-container .modal-header:before{
+    content: ' ';
+    clear: both;
+    display: block;
+}
+
+.wm-modal > .modal-container .modal-header:after, .wm-modal > .modal-container .modal-header > .modal-title{
+    margin: 8px 0;
+}
+
 .wm-modal > .modal-container .modal-body{
     box-sizing: border-box;
     font-family: Arial;
-    font-size: 13px;
     font-stretch: normal;
     font-style: normal;
     font-variant: normal;
@@ -69,13 +81,17 @@
 }
 
 .wm-modal > .modal-container .modal-footer{
+
     height: 20%;
+    background-color: #fafafafa;
+    border-top: 1px solid #cecece;
     box-sizing: border-box;
     width: 100%;
     min-height: 50px;
     position: relative;
     padding: 10px;
     text-align: right;
+    
 }
 
 .wm-modal .modal-btn{
@@ -117,6 +133,7 @@
     padding: 2px;
     margin: 0;
     display: inline-block;
+    float: right;
 }
 
 /** Animations of ngAnimate **/
@@ -140,4 +157,10 @@
 
 .wm-modal.close-remove.close-remove-active{
     opacity: 1;
+}
+
+@media screen and (max-width: 800px) {
+    .wm-modal > .modal-container{
+        width: 100%;
+    }
 }
